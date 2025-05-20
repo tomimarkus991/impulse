@@ -11,6 +11,7 @@ import { useModal } from "../../../hooks/ModalContext";
 import { useSelect } from "../../../hooks/SelectContext";
 import { P } from "../../P";
 import { ColorPicker } from "../ColorPicker";
+import { useEvent } from "../../../hooks/EventContext";
 
 interface Props {
   selectedEvent: SelectEvent | null;
@@ -21,6 +22,7 @@ export const EditEventModal = ({ selectedEvent }: Props) => {
     useModal();
   const [currentLockState, setCurrentLockState] = useState(selectedEvent?.locked);
   const { setEditModalSelectedColor } = useSelect();
+  const { events, setEvents } = useEvent();
 
   if (!selectedEvent) {
     return <></>;
@@ -65,12 +67,13 @@ export const EditEventModal = ({ selectedEvent }: Props) => {
             onPress={async () => {
               await db.delete(eventsTable).where(eq(eventsTable.id, id));
 
-              // for (const [date, allEvents] of events.entries()) {
-              //   const filtered = allEvents.filter(event => event.id !== id);
-              //   events.set(date, filtered);
-              // }
+              const date = format(start, "dd-MM-yyyy");
 
-              // setEvents(events);
+              const newEvents = new Map(events);
+              const filtered = newEvents.get(date)?.filter(event => event.id !== id) || [];
+              newEvents.set(date, filtered);
+
+              setEvents(newEvents);
 
               closeModal();
             }}
