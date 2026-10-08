@@ -68,9 +68,7 @@ Functions (unit-tested):
 
 - **App start (authoritative):** in `app/_layout.tsx`, after initialization, call `await setupNotifications()` and then `rescheduleDailyDigest()`.
 - **App foreground:** an `AppState` listener (in `RootLayoutNav`) calls `rescheduleDailyDigest()` when the state becomes `"active"`. This handles timezone changes and keeps the 30-day window rolling.
-- **Event changes:** every event mutation calls `setEvents` (create, edit, delete, lock). In `EventProvider`, a `useEffect` on `events` calls `rescheduleDailyDigest()`, debounced by about 1s.
-  - Month navigation also calls `setEvents` (`useGetCurrentMonth.tsx`), so swiping triggers a reschedule as well. This is accepted: it is debounced, cheap, and reads from the DB, not the in-memory month map.
-  - If the effect runs before permission is granted at startup, it no-ops. The startup call covers that case.
+- **Event changes:** create (both paths in `CreateEventModal.tsx`) and delete (`EditEventModal.tsx`) call `rescheduleDailyDigest()` right after their DB write. Lock and color changes don't affect notification content.
 
 ## Error handling
 

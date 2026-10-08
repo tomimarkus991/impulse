@@ -12,6 +12,7 @@ import { useSelect } from "../../../hooks/SelectContext";
 import { P } from "../../P";
 import { ColorPicker } from "../ColorPicker";
 import { useEvent } from "../../../hooks/EventContext";
+import { rescheduleDailyDigest } from "../../../notifications/dailyDigest";
 
 interface Props {
   selectedEvent: SelectEvent | null;
@@ -74,6 +75,7 @@ export const EditEventModal = ({ selectedEvent }: Props) => {
               newEvents.set(date, filtered);
 
               setEvents(newEvents);
+              rescheduleDailyDigest();
 
               closeModal();
             }}

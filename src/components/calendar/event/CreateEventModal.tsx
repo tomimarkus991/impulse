@@ -14,6 +14,7 @@ import { P } from "../../P";
 import { ColorPicker } from "../ColorPicker";
 import { useSelect } from "../../../hooks/SelectContext";
 import { colors } from "../../../config";
+import { rescheduleDailyDigest } from "../../../notifications/dailyDigest";
 
 interface PresetInputProps {
   backgroundColor: string;
@@ -102,6 +103,7 @@ const PresetInput = ({ backgroundColor, id, title }: PresetInputProps) => {
       return newEvents;
     });
     setIsCreateEventModalVisible(false);
+    rescheduleDailyDigest();
   };
 
   const handleEventNameInputChange = async () => {
@@ -196,6 +198,7 @@ export const CreateEventModal = () => {
 
     setTitle("");
     setIsCreateEventModalVisible(false);
+    rescheduleDailyDigest();
   };
 
   return (
