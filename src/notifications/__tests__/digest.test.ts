@@ -1,5 +1,6 @@
 process.env.TZ = "Europe/Tallinn";
 
+import { describe, expect, it } from "@jest/globals";
 import type { SelectEvent } from "../../db/types";
 import { buildDigests, DIGEST_WINDOW_DAYS, getDigestWindow } from "../digest";
 
