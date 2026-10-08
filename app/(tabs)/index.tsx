@@ -60,7 +60,7 @@ export default function TabOneScreen() {
                     events={events}
                     setSelectedEvent={setSelectedEvent}
                     weekStartDate={weekStartDate}
-                    currentMonth={currentMonth}
+                    month={currentMonth}
                   />
                 );
               })}

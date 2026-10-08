@@ -1,8 +1,6 @@
-import { formatDate, isSameMonth, isToday } from "date-fns";
+import { formatDate, isToday } from "date-fns";
 import React from "react";
-import { View } from "react-native";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import { runOnJS } from "react-native-reanimated";
+import { Pressable } from "react-native";
 import { SelectEvent } from "../../db/types";
 import { useModal } from "../../hooks/ModalContext";
 import { useSelect } from "../../hooks/SelectContext";
@@ -13,61 +11,43 @@ interface Props {
   eventsForDay: SelectEvent[];
   day: Date;
   setSelectedEvent: (event: SelectEvent) => void;
-  currentMonth: Date;
+  isCurrentMonth: boolean;
 }
 
 export const CalendarDay = React.memo(
-  ({ day, eventsForDay, setSelectedEvent, currentMonth }: Props) => {
-    const { setIsEditEventModalVisible, setIsCreateEventModalVisible, setIsRestModalVisible } =
-      useModal();
+  ({ day, eventsForDay, setSelectedEvent, isCurrentMonth }: Props) => {
+    const { setIsEditEventModalVisible, setIsCreateEventModalVisible } = useModal();
     const { setSelectedDate } = useSelect();
 
-    const singleTapAction = () => {
-      setSelectedDate(day);
-      setIsCreateEventModalVisible(true);
-    };
-
-    const doubleTapAction = () => {
-      setSelectedDate(day);
-      setIsRestModalVisible(true);
-    };
-
-    const singleTap = Gesture.Tap().onStart(() => {
-      runOnJS(singleTapAction)();
-    });
-    const doubleTap = Gesture.Tap()
-      .numberOfTaps(2)
-      .onStart(() => {
-        runOnJS(doubleTapAction)();
-      });
-
     return (
-      <GestureDetector gesture={Gesture.Exclusive(doubleTap, singleTap)}>
-        <View className="flex-1 pt-6 pb-12 mx-1">
-          <P
-            className={"text-center mb-1"}
-            style={{
-              color: isToday(day)
-                ? "#0A84FF"
-                : `${isSameMonth(currentMonth, day) ? "#E5E5E7" : "#575757"}`,
-            }}
-          >
-            {formatDate(day, "dd")}
-          </P>
-          {eventsForDay.map(event => {
-            return (
-              <CalendarEvent
-                key={event.id}
-                onPress={() => {
-                  setSelectedEvent(event);
-                  setIsEditEventModalVisible(true);
-                }}
-                {...event}
-              />
-            );
-          })}
-        </View>
-      </GestureDetector>
+      <Pressable
+        className="flex-1 pt-6 pb-12 mx-1"
+        onPress={() => {
+          setSelectedDate(day);
+          setIsCreateEventModalVisible(true);
+        }}
+      >
+        <P
+          className={"text-center mb-1"}
+          style={{
+            color: isToday(day) ? "#0A84FF" : isCurrentMonth ? "#E5E5E7" : "#575757",
+          }}
+        >
+          {formatDate(day, "dd")}
+        </P>
+        {eventsForDay.map(event => {
+          return (
+            <CalendarEvent
+              key={event.id}
+              onPress={() => {
+                setSelectedEvent(event);
+                setIsEditEventModalVisible(true);
+              }}
+              {...event}
+            />
+          );
+        })}
+      </Pressable>
     );
   }
 );
