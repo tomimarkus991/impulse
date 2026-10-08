@@ -1,5 +1,5 @@
 import { eachWeekOfInterval, endOfMonth, endOfWeek, startOfMonth, startOfWeek } from "date-fns";
-import React, { useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { Animated, ScrollView } from "react-native";
 import { Gesture, GestureDetector, GestureType } from "react-native-gesture-handler";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
@@ -11,7 +11,7 @@ import { DynamicHeader } from "../../src/components/ScrollHeader";
 import { SelectEvent } from "../../src/db/types";
 import { useEvent } from "../../src/hooks/EventContext";
 import { getSwipeMonthGesture } from "../../src/hooks/getSwipeMonthGesture";
-import { useGetCurrentMonth } from "../../src/hooks/useGetCurrentMonth";
+import { useMonthEvents } from "../../src/hooks/useMonthEvents";
 import { useSwipeInfo } from "../../src/hooks/useSwipeInfo";
 import { SwipeInfo } from "../../src/types";
 
@@ -24,27 +24,19 @@ export default function TabOneScreen() {
   const { events } = useEvent();
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
-  const [calendarMonthInfo, setCalendarMonthInfo] = useState({
-    start: startOfWeek(startOfMonth(currentMonth)),
-    end: endOfWeek(endOfMonth(currentMonth)),
-  });
-
-  const [weekStartDates, setWeekStartDates] = useState(
-    eachWeekOfInterval({
-      start: calendarMonthInfo.start,
-      end: calendarMonthInfo.end,
-    })
+  const weekStartDates = useMemo(
+    () =>
+      eachWeekOfInterval({
+        start: startOfWeek(startOfMonth(currentMonth)),
+        end: endOfWeek(endOfMonth(currentMonth)),
+      }),
+    [currentMonth]
   );
 
   const swipeMonthGesture = getSwipeMonthGesture({ setSwipeInfo, panGestureRef });
 
   useSwipeInfo({ setCurrentMonth, swipeInfo, translateX, opacity });
-  useGetCurrentMonth({
-    currentMonth,
-    setWeekStartDates,
-    setCalendarMonthInfo,
-    calendarMonthInfo,
-  });
+  useMonthEvents(currentMonth);
 
   return (
     <SafeAreaProvider>
