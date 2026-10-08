@@ -6,6 +6,7 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import * as SQLite from "expo-sqlite";
 import React, { useEffect, useState } from "react";
+import { AppState } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "react-native-reanimated";
 import "../global.css";
@@ -14,6 +15,7 @@ import { ModalProvider } from "../src/hooks/ModalContext";
 import { presetsTable } from "../src/db/schema";
 import { EventProvider } from "../src/hooks/EventContext";
 import { SelectProvider } from "../src/hooks/SelectContext";
+import { rescheduleDailyDigest, setupNotifications } from "../src/notifications/dailyDigest";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -93,6 +95,19 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
+  useEffect(() => {
+    (async () => {
+      await setupNotifications();
+      rescheduleDailyDigest();
+    })();
+
+    const subscription = AppState.addEventListener("change", state => {
+      if (state === "active") rescheduleDailyDigest();
+    });
+
+    return () => subscription.remove();
+  }, []);
+
   return (
     <>
       <GestureHandlerRootView>

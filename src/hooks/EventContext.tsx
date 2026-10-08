@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { SelectEvent, SelectPreset } from "../db/types";
+import { rescheduleDailyDigest } from "../notifications/dailyDigest";
 
 type ContextType = {
   events: Map<string, SelectEvent[]>;
@@ -13,6 +14,13 @@ const Context = createContext<ContextType | undefined>(undefined);
 export const EventProvider = ({ children }: { children: ReactNode }) => {
   const [events, setEvents] = useState<Map<string, SelectEvent[]>>(new Map());
   const [presets, setPresets] = useState<SelectPreset[]>([]);
+
+  // Every event mutation goes through setEvents, so resync notifications from the DB
+  useEffect(() => {
+    const timeout = setTimeout(rescheduleDailyDigest, 1000);
+
+    return () => clearTimeout(timeout);
+  }, [events]);
 
   return (
     <Context.Provider
