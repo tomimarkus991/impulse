@@ -38,7 +38,7 @@ export const DynamicHeader = ({ month, translateX, opacity }: Props) => {
             await generateData(1, 2025);
           }}
         >
-          <AntDesign name="questioncircleo" size={24} color="white" />
+          <AntDesign name="question-circle" size={24} color="white" />
         </Pressable>
       </View>
       <View className="flex-[7] flex-row mt-2">

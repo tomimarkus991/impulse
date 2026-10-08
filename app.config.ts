@@ -1,4 +1,4 @@
-import { ConfigContext, ExpoConfig } from "@expo/config";
+import { ConfigContext, ExpoConfig } from "expo/config";
 
 type AppConfig = {
   name: string;
@@ -43,12 +43,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   icon: "./assets/images/icon.png",
   scheme: appConfig.scheme,
   userInterfaceStyle: "automatic",
-  newArchEnabled: true,
-  splash: {
-    image: "./assets/images/splash.png",
-    resizeMode: "contain",
-    backgroundColor: "#1e1f1f",
-  },
   ios: {
     supportsTablet: true,
     config: {
@@ -66,6 +60,15 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   plugins: [
     "expo-router",
     "expo-sqlite",
+    [
+      "expo-splash-screen",
+      {
+        image: "./assets/images/splash.png",
+        resizeMode: "contain",
+        imageWidth: 200,
+        backgroundColor: "#1e1f1f",
+      },
+    ],
     [
       "expo-font",
       {
