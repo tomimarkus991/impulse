@@ -89,7 +89,23 @@ export const EditEventModal = ({ selectedEvent }: Props) => {
                 })
                 .where(eq(eventsTable.id, id));
 
-              setCurrentLockState(prev => !prev);
+              const date = format(start, "dd-MM-yyyy");
+
+              const newEvents = new Map(events);
+
+              const mapped =
+                newEvents.get(date)?.map(event => {
+                  if (event.id === id) {
+                    return { ...event, locked: !currentLockState };
+                  }
+
+                  return event;
+                }) || [];
+              newEvents.set(date, mapped);
+
+              setEvents(newEvents);
+
+              setCurrentLockState(null);
             }}
           >
             {currentLockState ? (
@@ -102,6 +118,22 @@ export const EditEventModal = ({ selectedEvent }: Props) => {
             onPress={() => {
               setEditModalSelectedColor(selectedEvent?.color || null);
               setIsColorPickerModalVisible(true);
+
+              const date = format(start, "dd-MM-yyyy");
+
+              const newEvents = new Map(events);
+
+              const mapped =
+                newEvents.get(date)?.map(event => {
+                  if (event.id === id) {
+                    return { ...event, color: selectedEvent?.color };
+                  }
+
+                  return event;
+                }) || [];
+              newEvents.set(date, mapped);
+
+              setEvents(newEvents);
             }}
             className={clsx("m-2 rounded-full size-7")}
             style={{ backgroundColor: selectedEvent?.color }}
