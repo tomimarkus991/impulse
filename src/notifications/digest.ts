@@ -35,7 +35,12 @@ export const buildDigests = (events: SelectEvent[], now: Date): Digest[] => {
 
     if (!dayEvents) continue;
 
-    const date = set(day, { hours: DIGEST_HOUR, minutes: DIGEST_MINUTE, seconds: 0, milliseconds: 0 });
+    const date = set(day, {
+      hours: DIGEST_HOUR,
+      minutes: DIGEST_MINUTE,
+      seconds: 0,
+      milliseconds: 0,
+    });
 
     if (date <= now) continue;
 

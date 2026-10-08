@@ -45,7 +45,9 @@ const reschedule = async () => {
   const events = await db
     .select()
     .from(eventsTable)
-    .where(and(gte(eventsTable.start, from.toISOString()), lt(eventsTable.start, to.toISOString())));
+    .where(
+      and(gte(eventsTable.start, from.toISOString()), lt(eventsTable.start, to.toISOString()))
+    );
 
   const scheduled = await Notifications.getAllScheduledNotificationsAsync();
 

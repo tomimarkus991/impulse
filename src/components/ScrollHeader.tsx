@@ -1,13 +1,10 @@
-import { Animated, Pressable, Text, View } from "react-native";
+import { Pressable, View } from "react-native";
+import Animated, { FadeIn } from "react-native-reanimated";
 import { P } from "./P";
 
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { format } from "date-fns";
-import { db } from "../../app/_layout";
-import { eventsTable } from "../db/schema";
 import { generateData } from "../db/generateData";
-import { MotiView } from "moti";
-import { ANIMATION_DURATIONS } from "../config";
 
 interface WeekDayProps {
   text: string;
@@ -19,15 +16,17 @@ const WeekDay = ({ text }: WeekDayProps) => {
 
 interface Props {
   month: Date;
-  translateX: Animated.Value;
-  opacity: Animated.Value;
 }
 
-export const DynamicHeader = ({ month, translateX, opacity }: Props) => {
+export const DynamicHeader = ({ month }: Props) => {
   return (
     <View className="h-28 pt-7">
       <View className="flex-row justify-between mx-5 mb-3">
-        <Animated.View style={{ flex: 1, transform: [{ translateX }], opacity }}>
+        <Animated.View
+          key={format(month, "yyyy-MM")}
+          entering={FadeIn.duration(200)}
+          style={{ flex: 1 }}
+        >
           <P className="text-2xl font-semibold">{format(month, "MMMM yy")}</P>
         </Animated.View>
         <Pressable

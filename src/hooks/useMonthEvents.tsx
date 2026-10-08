@@ -20,7 +20,9 @@ export const useMonthEvents = (month: Date) => {
       const events = await db
         .select()
         .from(eventsTable)
-        .where(and(gte(eventsTable.start, from.toISOString()), lte(eventsTable.start, to.toISOString())));
+        .where(
+          and(gte(eventsTable.start, from.toISOString()), lte(eventsTable.start, to.toISOString()))
+        );
 
       setEvents(prev => mergeEventsByDay(prev, events, { from, to }));
     })();

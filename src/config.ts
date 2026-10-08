@@ -1,7 +1,3 @@
-export const ANIMATION_DURATIONS = {
-  monthSwipe: 300,
-};
-
 // const colorsReversed = (colors:any) => {
 // const keys = Object.keys(colors.events)
 // const values = Object.values(colors.events)
