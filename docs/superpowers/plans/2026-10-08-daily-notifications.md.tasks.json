@@ -5,7 +5,7 @@
     {"id": 2, "subject": "Task 2: Pure digest logic (TDD)", "status": "completed", "blockedBy": [1]},
     {"id": 3, "subject": "Task 3: Notification side effects", "status": "completed", "blockedBy": [2]},
     {"id": 4, "subject": "Task 4: Wire triggers", "status": "completed", "blockedBy": [3]},
-    {"id": 5, "subject": "Task 5: Manual verification (user, on device)", "status": "pending", "blockedBy": [4]}
+    {"id": 5, "subject": "Task 5: Manual verification (user, on device)", "status": "completed", "blockedBy": [4]}
   ],
   "lastUpdated": "2026-10-08T23:10:00+03:00"
 }

@@ -7,7 +7,7 @@ type AppConfig = {
 };
 
 const getAppConfig = (): AppConfig => {
-  const variant = process.env.EXPO_PUBLIC_APP_VARIANT ?? "production";
+  const variant = process.env.EXPO_PUBLIC_APP_VARIANT ?? "preview";
 
   const config: AppConfig = {
     name: "impulse",
@@ -23,7 +23,7 @@ const getAppConfig = (): AppConfig => {
     };
   } else if (variant === "preview") {
     return {
-      name: `${config.name}`,
+      name: `${config.name} preview`,
       scheme: `${config.scheme}-preview`,
       package: `${config.package}.preview`,
     };

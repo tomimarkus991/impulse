@@ -29,16 +29,16 @@ export const DynamicHeader = ({ month }: Props) => {
         >
           <P className="text-2xl font-semibold">{format(month, "MMMM yy")}</P>
         </Animated.View>
-        <Pressable
-          onPress={async () => {
-            console.log("Generating data");
-
-            // await db.delete(eventsTable).all();
-            await generateData(1, 2025);
-          }}
-        >
-          <AntDesign name="question-circle" size={24} color="white" />
-        </Pressable>
+        {/* Dev-only: fills the calendar with generated test events */}
+        {__DEV__ && (
+          <Pressable
+            onPress={async () => {
+              await generateData(1, 2025);
+            }}
+          >
+            <AntDesign name="question-circle" size={24} color="white" />
+          </Pressable>
+        )}
       </View>
       <View className="flex-[7] flex-row mt-2">
         <WeekDay text="Mon" />
