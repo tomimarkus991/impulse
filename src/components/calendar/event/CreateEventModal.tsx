@@ -60,10 +60,6 @@ const PresetInput = ({ backgroundColor, id, title }: PresetInputProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [text, setText] = useState(title);
 
-  if (!selectedDate) {
-    return <P>Need Start Date</P>;
-  }
-
   useEffect(() => {
     (async () => {
       if (selectedColor && selectedPreset) {
@@ -78,6 +74,10 @@ const PresetInput = ({ backgroundColor, id, title }: PresetInputProps) => {
       }
     })();
   }, [selectedColor]);
+
+  if (!selectedDate) {
+    return <P>Need Start Date</P>;
+  }
 
   const createEvent = async () => {
     if (!text) {
