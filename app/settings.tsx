@@ -16,7 +16,12 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { BackupError } from "../src/backup/backup";
-import { exportBackup, pickBackup, restoreBackup } from "../src/backup/fileBackup";
+import {
+  pickBackup,
+  restoreBackup,
+  saveBackupToFolder,
+  shareBackup,
+} from "../src/backup/fileBackup";
 import { P } from "../src/components/P";
 import { loadPresets } from "../src/db/presets";
 import { useEvent } from "../src/hooks/EventContext";
@@ -77,7 +82,7 @@ export default function SettingsScreen() {
   const [settings, setSettings] = useState<NotificationSettings>(getNotificationSettings);
   const [permissionBlocked, setPermissionBlocked] = useState(false);
   const [isPickingTime, setIsPickingTime] = useState(false);
-  const [busy, setBusy] = useState<"export" | "import" | null>(null);
+  const [busy, setBusy] = useState<"save" | "share" | "import" | null>(null);
 
   useEffect(() => {
     Notifications.getPermissionsAsync().then(({ granted, canAskAgain }) =>
@@ -103,12 +108,29 @@ export default function SettingsScreen() {
 
   const time = set(new Date(), { hours: settings.hour, minutes: settings.minute });
 
-  const onExport = async () => {
-    setBusy("export");
+  const onSave = async () => {
+    setBusy("save");
     try {
-      await exportBackup();
+      const saved = await saveBackupToFolder();
+      if (saved) {
+        Alert.alert(
+          "Backup saved",
+          `${saved.name}\n\n${saved.events} trainings and ${saved.presets} presets.`
+        );
+      }
     } catch (error) {
-      Alert.alert("Export failed", String(error));
+      Alert.alert("Saving failed", String(error));
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const onShare = async () => {
+    setBusy("share");
+    try {
+      await shareBackup();
+    } catch (error) {
+      Alert.alert("Sharing failed", String(error));
     } finally {
       setBusy(null);
     }
@@ -239,13 +261,26 @@ export default function SettingsScreen() {
         )}
 
         <Section title="Data">
+          {Platform.OS === "android" && (
+            <>
+              <Row
+                icon="save-outline"
+                title="Save backup"
+                subtitle="Pick a folder on your phone"
+                busy={busy === "save"}
+                disabled={busy !== null && busy !== "save"}
+                onPress={onSave}
+              />
+              <Divider />
+            </>
+          )}
           <Row
             icon="share-outline"
-            title="Export backup"
-            subtitle="Save all trainings and presets to a file"
-            busy={busy === "export"}
-            disabled={busy === "import"}
-            onPress={onExport}
+            title="Share backup"
+            subtitle="Send it to Drive, email or another app"
+            busy={busy === "share"}
+            disabled={busy !== null && busy !== "share"}
+            onPress={onShare}
           />
           <Divider />
           <Row
@@ -253,7 +288,7 @@ export default function SettingsScreen() {
             title="Import backup"
             subtitle="Replace everything with a backup file"
             busy={busy === "import"}
-            disabled={busy === "export"}
+            disabled={busy !== null && busy !== "import"}
             onPress={onImport}
           />
         </Section>

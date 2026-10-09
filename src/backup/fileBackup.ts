@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import * as DocumentPicker from "expo-document-picker";
-import { File, Paths } from "expo-file-system";
+import { Directory, File, Paths } from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import { db } from "../../app/_layout";
 import { eventsTable, presetsTable } from "../db/schema";
@@ -16,25 +16,56 @@ const chunks = <T>(items: T[]) => {
   return result;
 };
 
-/** Writes all events and presets to a JSON file and opens the share sheet for it. */
-export const exportBackup = async () => {
+const buildBackupFile = async () => {
   const now = new Date();
   const [events, presets] = await Promise.all([
     db.select().from(eventsTable),
     db.select().from(presetsTable),
   ]);
 
-  const file = new File(Paths.cache, `impulse-backup-${format(now, "yyyy-MM-dd")}.json`);
+  return {
+    name: `impulse-backup-${format(now, "yyyy-MM-dd-HHmm")}.json`,
+    contents: JSON.stringify(createBackup(events, presets, now)),
+    events: events.length,
+    presets: presets.length,
+  };
+};
+
+const isPickerCancelled = (error: unknown) =>
+  error instanceof Error && /cancel/i.test(error.message);
+
+/**
+ * Lets the user pick a folder (e.g. Downloads) and saves the backup there.
+ * Resolves null when they cancel the folder picker.
+ */
+export const saveBackupToFolder = async () => {
+  let folder: Directory;
+  try {
+    folder = await Directory.pickDirectoryAsync();
+  } catch (error) {
+    if (isPickerCancelled(error)) return null;
+    throw error;
+  }
+
+  const backup = await buildBackupFile();
+  folder.createFile(backup.name, "application/json").write(backup.contents);
+
+  return backup;
+};
+
+/** Writes the backup to a temporary file and opens the share sheet for it. */
+export const shareBackup = async () => {
+  const backup = await buildBackupFile();
+
+  const file = new File(Paths.cache, backup.name);
   file.create({ overwrite: true });
-  file.write(JSON.stringify(createBackup(events, presets, now)));
+  file.write(backup.contents);
 
   await Sharing.shareAsync(file.uri, {
     mimeType: "application/json",
     UTI: "public.json",
-    dialogTitle: "Export Impulse backup",
+    dialogTitle: "Share Impulse backup",
   });
-
-  return { events: events.length, presets: presets.length };
 };
 
 /** Lets the user pick a backup file. Resolves null when they cancel; throws BackupError on bad files. */
