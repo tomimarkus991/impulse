@@ -96,4 +96,22 @@ describe("buildDigests", () => {
     expect(digests[0].date.getHours()).toBe(10);
     expect(digests[0].date.toISOString()).toBe("2026-10-26T08:00:00.000Z");
   });
+
+  it("uses a custom time when given", () => {
+    const digests = buildDigests([event(local(2026, 10, 9, 18), "Push")], now, {
+      hour: 7,
+      minute: 30,
+    });
+
+    expect(digests).toEqual([{ date: local(2026, 10, 9, 7, 30), body: "Push" }]);
+  });
+
+  it("skips today when a custom time has already passed", () => {
+    const digests = buildDigests([event(local(2026, 10, 8, 18), "Push")], now, {
+      hour: 6,
+      minute: 0,
+    });
+
+    expect(digests).toEqual([]);
+  });
 });

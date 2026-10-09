@@ -3,6 +3,7 @@ import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
 import { db } from "../../app/_layout";
 import { eventsTable } from "../db/schema";
+import { getNotificationSettings } from "../settings/notificationSettings";
 import { buildDigests, getDigestWindow } from "./digest";
 
 const ANDROID_CHANNEL_ID = "daily-digest";
@@ -34,9 +35,23 @@ export const setupNotifications = async () => {
   return (await Notifications.requestPermissionsAsync()).granted;
 };
 
-const reschedule = async () => {
-  const { granted } = await Notifications.getPermissionsAsync();
+const cancelDigests = async () => {
+  const scheduled = await Notifications.getAllScheduledNotificationsAsync();
 
+  await Promise.all(
+    scheduled
+      .filter(request => request.content.data?.type === DIGEST_DATA_TYPE)
+      .map(request => Notifications.cancelScheduledNotificationAsync(request.identifier))
+  );
+};
+
+const reschedule = async () => {
+  await cancelDigests();
+
+  const settings = getNotificationSettings();
+  if (!settings.enabled) return;
+
+  const { granted } = await Notifications.getPermissionsAsync();
   if (!granted) return;
 
   const now = new Date();
@@ -49,15 +64,7 @@ const reschedule = async () => {
       and(gte(eventsTable.start, from.toISOString()), lt(eventsTable.start, to.toISOString()))
     );
 
-  const scheduled = await Notifications.getAllScheduledNotificationsAsync();
-
-  await Promise.all(
-    scheduled
-      .filter(request => request.content.data?.type === DIGEST_DATA_TYPE)
-      .map(request => Notifications.cancelScheduledNotificationAsync(request.identifier))
-  );
-
-  for (const digest of buildDigests(events, now)) {
+  for (const digest of buildDigests(events, now, settings)) {
     await Notifications.scheduleNotificationAsync({
       content: {
         title: "Today",
@@ -72,6 +79,17 @@ const reschedule = async () => {
     });
   }
 };
+
+/** Shows a notification in a few seconds so the user can check how it looks and that it arrives. */
+export const sendTestNotification = () =>
+  Notifications.scheduleNotificationAsync({
+    content: { title: "Today", body: "Push, Pull" },
+    trigger: {
+      type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+      seconds: 3,
+      channelId: ANDROID_CHANNEL_ID,
+    },
+  });
 
 // Chain calls so overlapping reschedules never interleave cancel/schedule passes
 let queue = Promise.resolve();

@@ -114,6 +114,7 @@ function RootLayoutNav() {
             <SelectProvider>
               <Stack>
                 <Stack.Screen name="(tabs)/index" options={{ headerShown: false }} />
+                <Stack.Screen name="settings" options={{ headerShown: false }} />
               </Stack>
             </SelectProvider>
           </ModalProvider>

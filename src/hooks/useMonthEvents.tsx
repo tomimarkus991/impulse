@@ -10,7 +10,7 @@ import { useEvent } from "./EventContext";
 const PREFETCH_MONTHS = 2;
 
 export const useMonthEvents = (month: Date) => {
-  const { setEvents } = useEvent();
+  const { setEvents, dataVersion } = useEvent();
 
   useEffect(() => {
     const from = startOfWeek(startOfMonth(subMonths(month, PREFETCH_MONTHS)));
@@ -26,5 +26,5 @@ export const useMonthEvents = (month: Date) => {
 
       setEvents(prev => mergeEventsByDay(prev, events, { from, to }));
     })();
-  }, [month.getFullYear(), month.getMonth()]);
+  }, [month.getFullYear(), month.getMonth(), dataVersion]);
 };
