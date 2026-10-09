@@ -1,7 +1,6 @@
 import { format } from "date-fns";
 import * as DocumentPicker from "expo-document-picker";
-import { Directory, File, Paths } from "expo-file-system";
-import * as Sharing from "expo-sharing";
+import { Directory, File } from "expo-file-system";
 import { db } from "../../app/_layout";
 import { eventsTable, presetsTable } from "../db/schema";
 import { Backup, createBackup, parseBackup } from "./backup";
@@ -51,21 +50,6 @@ export const saveBackupToFolder = async () => {
   folder.createFile(backup.name, "application/json").write(backup.contents);
 
   return backup;
-};
-
-/** Writes the backup to a temporary file and opens the share sheet for it. */
-export const shareBackup = async () => {
-  const backup = await buildBackupFile();
-
-  const file = new File(Paths.cache, backup.name);
-  file.create({ overwrite: true });
-  file.write(backup.contents);
-
-  await Sharing.shareAsync(file.uri, {
-    mimeType: "application/json",
-    UTI: "public.json",
-    dialogTitle: "Share Impulse backup",
-  });
 };
 
 /** Lets the user pick a backup file. Resolves null when they cancel; throws BackupError on bad files. */

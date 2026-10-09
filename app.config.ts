@@ -61,7 +61,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     "expo-router",
     "expo-sqlite",
     "expo-notifications",
-    "expo-sharing",
     "expo-document-picker",
     "@react-native-community/datetimepicker",
     [

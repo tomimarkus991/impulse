@@ -16,12 +16,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { BackupError } from "../src/backup/backup";
-import {
-  pickBackup,
-  restoreBackup,
-  saveBackupToFolder,
-  shareBackup,
-} from "../src/backup/fileBackup";
+import { pickBackup, restoreBackup, saveBackupToFolder } from "../src/backup/fileBackup";
 import { P } from "../src/components/P";
 import { loadPresets } from "../src/db/presets";
 import { useEvent } from "../src/hooks/EventContext";
@@ -82,7 +77,7 @@ export default function SettingsScreen() {
   const [settings, setSettings] = useState<NotificationSettings>(getNotificationSettings);
   const [permissionBlocked, setPermissionBlocked] = useState(false);
   const [isPickingTime, setIsPickingTime] = useState(false);
-  const [busy, setBusy] = useState<"save" | "share" | "import" | null>(null);
+  const [busy, setBusy] = useState<"save" | "import" | null>(null);
 
   useEffect(() => {
     Notifications.getPermissionsAsync().then(({ granted, canAskAgain }) =>
@@ -120,17 +115,6 @@ export default function SettingsScreen() {
       }
     } catch (error) {
       Alert.alert("Saving failed", String(error));
-    } finally {
-      setBusy(null);
-    }
-  };
-
-  const onShare = async () => {
-    setBusy("share");
-    try {
-      await shareBackup();
-    } catch (error) {
-      Alert.alert("Sharing failed", String(error));
     } finally {
       setBusy(null);
     }
@@ -261,26 +245,13 @@ export default function SettingsScreen() {
         )}
 
         <Section title="Data">
-          {Platform.OS === "android" && (
-            <>
-              <Row
-                icon="save-outline"
-                title="Save backup"
-                subtitle="Pick a folder on your phone"
-                busy={busy === "save"}
-                disabled={busy !== null && busy !== "save"}
-                onPress={onSave}
-              />
-              <Divider />
-            </>
-          )}
           <Row
-            icon="share-outline"
-            title="Share backup"
-            subtitle="Send it to Drive, email or another app"
-            busy={busy === "share"}
-            disabled={busy !== null && busy !== "share"}
-            onPress={onShare}
+            icon="save-outline"
+            title="Save backup"
+            subtitle="Pick a folder on your phone"
+            busy={busy === "save"}
+            disabled={busy === "import"}
+            onPress={onSave}
           />
           <Divider />
           <Row
@@ -288,7 +259,7 @@ export default function SettingsScreen() {
             title="Import backup"
             subtitle="Replace everything with a backup file"
             busy={busy === "import"}
-            disabled={busy !== null && busy !== "import"}
+            disabled={busy === "save"}
             onPress={onImport}
           />
         </Section>
