@@ -2,28 +2,20 @@ import { Modal, Pressable, View } from "react-native";
 import { colors } from "../../config";
 import { useModal } from "../../hooks/ModalContext";
 import { useSelect } from "../../hooks/SelectContext";
-import { eq } from "drizzle-orm";
-import { db } from "../../../app/_layout";
-import { eventsTable } from "../../db/schema";
 
 interface Props {
-  id?: number;
+  // Called with the picked colour instead of updating the preset/custom event colour
+  onPick?: (color: string) => void;
 }
 
-export const ColorPicker = ({ id }: Props) => {
+export const ColorPicker = ({ onPick }: Props) => {
   const { isColorPickerModalVisible, setIsColorPickerModalVisible } = useModal();
-  const {
-    setSelectedColor,
-    setSelectedPreset,
-    selectedPreset,
-    setCustomEventSelectedColor,
-    setEditModalSelectedColor,
-  } = useSelect();
+  const { setSelectedColor, setSelectedPreset, selectedPreset, setCustomEventSelectedColor } =
+    useSelect();
 
   const closeModal = () => {
     setSelectedPreset(null);
     setIsColorPickerModalVisible(false);
-    setEditModalSelectedColor(null);
   };
   return (
     <Modal
@@ -44,16 +36,9 @@ export const ColorPicker = ({ id }: Props) => {
                 key={color}
                 className="mx-auto rounded-full size-10"
                 style={{ backgroundColor: color }}
-                onPress={async () => {
-                  if (id) {
-                    setEditModalSelectedColor(color);
-
-                    await db
-                      .update(eventsTable)
-                      .set({
-                        color,
-                      })
-                      .where(eq(eventsTable.id, id));
+                onPress={() => {
+                  if (onPick) {
+                    onPick(color);
                   } else {
                     if (selectedPreset) {
                       setSelectedColor(color);
