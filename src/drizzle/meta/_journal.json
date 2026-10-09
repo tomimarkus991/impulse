@@ -57,6 +57,20 @@
       "when": 1745506170354,
       "tag": "0007_mighty_jamie_braddock",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1791538541421,
+      "tag": "0008_preset_pinning",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1791538541933,
+      "tag": "0009_pin_existing_presets",
+      "breakpoints": true
     }
   ]
 }

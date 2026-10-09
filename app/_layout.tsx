@@ -41,12 +41,10 @@ export default function RootLayout() {
 
       if (existing.length === 0) {
         await db.insert(presetsTable).values([
-          { id: 1, title: "Push", color: "#312E81", locked: false },
-          { id: 2, title: "Pull", color: "#BE6404", locked: false },
-          { id: 3, title: "Legs", color: "#1e3a8a", locked: false },
-          { id: 4, title: "Rest", color: "#14532D", locked: false },
-          { id: 5, title: "", color: "#EAB308", locked: false },
-          { id: 6, title: "", color: "#9A0F0F", locked: false },
+          { id: 1, title: "Push", color: "#312E81", pinned: true, position: 1 },
+          { id: 2, title: "Pull", color: "#BE6404", pinned: true, position: 2 },
+          { id: 3, title: "Legs", color: "#1e3a8a", pinned: true, position: 3 },
+          { id: 4, title: "Rest", color: "#14532D", pinned: true, position: 4 },
         ]);
       }
       setInitialized(true);

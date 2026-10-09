@@ -14,4 +14,7 @@ export const presetsTable = sqliteTable("preset", {
   title: text().notNull(),
   color: text().notNull(),
   locked: int({ mode: "boolean" }).default(false),
+  // Pinned presets show as tiles in the add sheet, ordered by position
+  pinned: int({ mode: "boolean" }).notNull().default(false),
+  position: int().notNull().default(0),
 });
