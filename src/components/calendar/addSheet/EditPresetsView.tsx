@@ -4,7 +4,7 @@ import { Pressable, TextInput, View } from "react-native";
 import { SelectPreset } from "../../../db/types";
 import { canPin, pinnedPresets } from "../../../utils/presets";
 import { P } from "../../P";
-import { ColorSwatches } from "./ColorSwatches";
+import { ColorSwatches, inputTextStyle } from "./ColorSwatches";
 import { PresetTile, textColorOn } from "./PresetTile";
 
 interface Props {
@@ -144,17 +144,17 @@ export const EditPresetsView = ({
 
       {editing && (
         <View className="gap-3 p-4 rounded-[18px] bg-[#2c2c2b]">
-          <View className="flex-row items-center gap-1">
-            <TextInput
-              accessibilityLabel="Preset name"
-              value={draftTitle}
-              onChangeText={setDraftTitle}
-              onBlur={commitTitle}
-              onSubmitEditing={commitTitle}
-              cursorColor="#fff"
-              className="flex-1 h-11 px-3 rounded-xl text-[17px] text-white bg-[#222221]"
-              style={{ fontFamily: "Rubik-Medium" }}
-            />
+          <TextInput
+            accessibilityLabel="Preset name"
+            value={draftTitle}
+            onChangeText={setDraftTitle}
+            onBlur={commitTitle}
+            onSubmitEditing={commitTitle}
+            cursorColor="#fff"
+            className="h-[52px] px-4 rounded-[14px] text-lg text-white bg-[#222221]"
+            style={[inputTextStyle, { fontFamily: "Rubik-Medium" }]}
+          />
+          <View className="flex-row items-center">
             {editing.pinned && (
               <>
                 <IconButton
@@ -173,6 +173,7 @@ export const EditPresetsView = ({
                 </IconButton>
               </>
             )}
+            <View className="flex-1" />
             <IconButton label={`Delete ${editing.title}`} onPress={() => onDelete(editing)}>
               <Ionicons name="trash-outline" size={20} color="#ff6961" />
             </IconButton>

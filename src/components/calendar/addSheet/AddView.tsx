@@ -5,7 +5,7 @@ import { Pressable, TextInput, View } from "react-native";
 import { SelectPreset } from "../../../db/types";
 import { otherPresets, pinnedPresets } from "../../../utils/presets";
 import { P } from "../../P";
-import { ColorSwatches } from "./ColorSwatches";
+import { ColorSwatches, inputTextStyle } from "./ColorSwatches";
 import { PresetTile } from "./PresetTile";
 
 interface Props {
@@ -94,8 +94,11 @@ export const AddView = ({
           <P className="text-[15px] text-[#a1a1a6]" fontFamily="Rubik-Medium">
             Pick one
           </P>
-          <Pressable onPress={onOpenEdit} hitSlop={10} className="justify-center h-11">
-            <P className="text-base text-primary" fontFamily="Rubik-Medium">
+          <Pressable
+            onPress={onOpenEdit}
+            className="items-center justify-center h-11 px-4 rounded-full bg-primary"
+          >
+            <P className="text-base text-white" fontFamily="Rubik-SemiBold">
               Edit
             </P>
           </Pressable>
@@ -159,7 +162,7 @@ export const AddView = ({
             value={customTitle}
             onChangeText={onChangeCustomTitle}
             className="flex-1 h-[52px] rounded-[14px] px-4 text-[17px] text-white bg-[#2c2c2b]"
-            style={{ fontFamily: "Rubik-Regular" }}
+            style={[inputTextStyle, { fontFamily: "Rubik-Regular" }]}
           />
           <Pressable
             accessibilityLabel="Custom colour"

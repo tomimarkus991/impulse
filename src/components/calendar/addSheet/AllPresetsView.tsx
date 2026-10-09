@@ -5,6 +5,7 @@ import { Pressable, ScrollView, TextInput, View } from "react-native";
 import { SelectPreset } from "../../../db/types";
 import { filterPresets, otherPresets, pinnedPresets } from "../../../utils/presets";
 import { P } from "../../P";
+import { inputTextStyle } from "./ColorSwatches";
 
 interface Props {
   presets: SelectPreset[];
@@ -99,7 +100,7 @@ export const AllPresetsView = ({
           onChangeText={setQuery}
           onSubmitEditing={() => trimmed && !exactMatch && onCreate(trimmed)}
           className="h-12 rounded-[14px] pl-[42px] pr-4 text-base text-white bg-[#2c2c2b]"
-          style={{ fontFamily: "Rubik-Regular" }}
+          style={[inputTextStyle, { fontFamily: "Rubik-Regular" }]}
         />
         <View className="absolute left-3.5" pointerEvents="none">
           <Ionicons name="search" size={18} color="#8e8e93" />
