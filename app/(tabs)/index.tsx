@@ -1,7 +1,7 @@
 import { addMonths, startOfMonth } from "date-fns";
 import React, { useMemo, useState } from "react";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { CreateEventModal } from "../../src/components/calendar/event/CreateEventModal";
+import { AddSheet } from "../../src/components/calendar/addSheet/AddSheet";
 import { EditEventModal } from "../../src/components/calendar/event/EditEventModal";
 import { RestModal } from "../../src/components/calendar/modals/RestModal";
 import { MonthPager } from "../../src/components/calendar/MonthPager";
@@ -30,7 +30,7 @@ export default function TabOneScreen() {
           setSelectedEvent={setSelectedEvent}
         />
         <EditEventModal selectedEvent={selectedEvent} />
-        <CreateEventModal />
+        <AddSheet />
         <RestModal />
       </SafeAreaView>
     </SafeAreaProvider>
