@@ -63,6 +63,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     "expo-notifications",
     "expo-document-picker",
     "@react-native-community/datetimepicker",
+    "@react-native-google-signin/google-signin",
     [
       "expo-splash-screen",
       {
