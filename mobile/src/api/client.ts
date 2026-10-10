@@ -1,4 +1,5 @@
-import { getSession } from "./session";
+import { setSyncState } from "../sync/syncState";
+import { clearSession, getSession } from "./session";
 
 export class ApiError extends Error {
   constructor(
@@ -40,6 +41,11 @@ export const apiFetch = async <T = unknown>(path: string, { method = "GET", body
   const text = await response.text();
   const data = text ? JSON.parse(text) : null;
 
+  if (response.status === 401 && token) {
+    // The token expired or was revoked: sign out so the UI asks the user to sign in again
+    clearSession();
+    setSyncState({ signedOutByServer: true });
+  }
   if (!response.ok) throw new ApiError(response.status, data?.error ?? `HTTP ${response.status}`);
 
   return data as T;

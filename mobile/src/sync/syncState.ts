@@ -10,6 +10,10 @@ export type SyncState = {
   lastUploadedAt: string | null;
   /** What the server had at sign-in, shown in the held choice */
   serverSnapshot: ServerSnapshotInfo | null;
+  /** Account this phone last uploaded to or restored from; only it may skip the hold */
+  lastSyncedUserId: number | null;
+  /** The server rejected our token, so the user was signed out without asking */
+  signedOutByServer: boolean;
 };
 
 const KEY = "sync.state";
@@ -18,6 +22,8 @@ const DEFAULT: SyncState = {
   held: false,
   lastUploadedAt: null,
   serverSnapshot: null,
+  lastSyncedUserId: null,
+  signedOutByServer: false,
 };
 
 const listeners = new Set<() => void>();

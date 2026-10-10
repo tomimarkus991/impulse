@@ -8,7 +8,7 @@ import { uploadSnapshot } from "../../sync/upload";
 import { getSyncState, resetSyncStateCache, setSyncState } from "../../sync/syncState";
 import { Storage } from "../../test/kvStoreMock";
 import { AuthResponse, completeSignIn } from "../auth";
-import { getSession, saveSession } from "../session";
+import { clearSession, getSession } from "../session";
 
 const upload = uploadSnapshot as jest.MockedFunction<typeof uploadSnapshot>;
 const user = { id: 3, email: "me@example.com", name: "Me" };
@@ -49,9 +49,8 @@ describe("completeSignIn", () => {
     expect(upload).not.toHaveBeenCalled();
   });
 
-  it("does not hold when the same user signs back in after uploading before", async () => {
-    saveSession({ token: "old", user });
-    setSyncState({ lastUploadedAt: "2026-10-09T10:00:00Z", pending: true });
+  it("does not hold when the same user signs back in after syncing before", async () => {
+    setSyncState({ lastSyncedUserId: 3, lastUploadedAt: "2026-10-09T10:00:00Z", pending: true });
 
     await completeSignIn(
       response({ receivedAt: "2026-10-09T10:00:00Z", events: 1509, presets: 6 })
@@ -61,12 +60,31 @@ describe("completeSignIn", () => {
     expect(upload).toHaveBeenCalledTimes(1);
   });
 
-  it("holds when a different user signs in on this phone", async () => {
-    saveSession({ token: "old", user: { ...user, id: 99 } });
-    setSyncState({ lastUploadedAt: "2026-10-09T10:00:00Z" });
+  it("holds when a different user signs in after another account synced", async () => {
+    setSyncState({ lastSyncedUserId: 99, lastUploadedAt: "2026-10-09T10:00:00Z" });
 
     await completeSignIn(response({ receivedAt: "2026-10-09T10:00:00Z", events: 5, presets: 1 }));
 
     expect(getSyncState().held).toBe(true);
+  });
+
+  it("stays held when a held user signs out and back in", async () => {
+    // Another account synced from this phone earlier
+    setSyncState({ lastSyncedUserId: 99, lastUploadedAt: "2026-10-09T10:00:00Z" });
+    const snapshot = { receivedAt: "2026-10-09T10:00:00Z", events: 5, presets: 1 };
+
+    await completeSignIn(response(snapshot));
+    clearSession();
+    await completeSignIn(response(snapshot));
+
+    expect(getSyncState().held).toBe(true);
+    expect(upload).not.toHaveBeenCalled();
+  });
+
+  it("clears the signed-out-by-server flag", async () => {
+    setSyncState({ signedOutByServer: true });
+    await completeSignIn(response(null));
+
+    expect(getSyncState().signedOutByServer).toBe(false);
   });
 });

@@ -1,5 +1,5 @@
 import { apiFetch, ApiError } from "../api/client";
-import { clearSession, getSession } from "../api/session";
+import { getSession } from "../api/session";
 import { Backup, parseBackup } from "../backup/backup";
 import { buildLocalSnapshot } from "./localSnapshot";
 import { getSyncState, setSyncState } from "./syncState";
@@ -22,15 +22,21 @@ export const markDataChanged = () => {
 
 const upload = async () => {
   const { pending, held } = getSyncState();
-  if (!getSession() || !pending || held) return;
+  const session = getSession();
+  if (!session || !pending || held) return;
 
   try {
     await apiFetch("/me/snapshot", { method: "PUT", body: await buildLocalSnapshot() });
-    setSyncState({ pending: false, lastUploadedAt: new Date().toISOString() });
+    setSyncState({
+      pending: false,
+      lastUploadedAt: new Date().toISOString(),
+      lastSyncedUserId: session.user.id,
+    });
   } catch (error) {
-    // Pending stays set either way, so the next app open retries
-    if (error instanceof ApiError && error.status === 401) clearSession();
-    else console.warn("Snapshot upload failed", error);
+    // Pending stays set either way, so the next app open retries. apiFetch signs out on 401.
+    if (!(error instanceof ApiError && error.status === 401)) {
+      console.warn("Snapshot upload failed", error);
+    }
   }
 };
 
@@ -53,4 +59,5 @@ export const markRestoredFromServer = () =>
     held: false,
     serverSnapshot: null,
     lastUploadedAt: new Date().toISOString(),
+    lastSyncedUserId: getSession()?.user.id ?? null,
   });

@@ -15,7 +15,8 @@ interface Props {
 }
 
 export const AccountSection = ({ onRestore }: Props) => {
-  const { session, pending, held, lastUploadedAt, serverSnapshot } = useSyncStatus();
+  const { session, pending, held, lastUploadedAt, serverSnapshot, signedOutByServer } =
+    useSyncStatus();
   const [busy, setBusy] = useState<"signin" | "upload" | "restore" | null>(null);
 
   if (!getApiUrl()) return null;
@@ -41,7 +42,7 @@ export const AccountSection = ({ onRestore }: Props) => {
           icon="logo-google"
           title="Sign in with Google"
           subtitle={
-            pending
+            signedOutByServer
               ? "Signed out — sign in again to upload"
               : "Back up your trainings to your account"
           }

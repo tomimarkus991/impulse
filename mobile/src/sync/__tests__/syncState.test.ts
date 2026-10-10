@@ -17,6 +17,8 @@ describe("syncState", () => {
       held: false,
       lastUploadedAt: null,
       serverSnapshot: null,
+      lastSyncedUserId: null,
+      signedOutByServer: false,
     });
   });
 
@@ -29,6 +31,8 @@ describe("syncState", () => {
       held: false,
       lastUploadedAt: "2026-10-10T09:00:00.000Z",
       serverSnapshot: null,
+      lastSyncedUserId: null,
+      signedOutByServer: false,
     });
   });
 

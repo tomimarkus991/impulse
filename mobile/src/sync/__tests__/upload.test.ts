@@ -73,17 +73,18 @@ describe("uploadSnapshot", () => {
     });
     expect(getSyncState().pending).toBe(false);
     expect(getSyncState().lastUploadedAt).not.toBeNull();
+    expect(getSyncState().lastSyncedUserId).toBe(1);
   });
 
-  it("signs out on 401 and keeps pending", async () => {
+  it("keeps pending on 401", async () => {
     signIn();
     setSyncState({ pending: true });
     api.mockRejectedValue(new ApiError(401, "Expired"));
 
     await uploadSnapshot();
 
-    expect(getSession()).toBeNull();
     expect(getSyncState().pending).toBe(true);
+    expect(getSyncState().lastSyncedUserId).toBeNull();
   });
 
   it("keeps pending on network errors", async () => {
@@ -144,6 +145,7 @@ describe("markRestoredFromServer", () => {
 
     expect(getSyncState()).toMatchObject({ pending: false, held: false });
     expect(getSyncState().lastUploadedAt).not.toBeNull();
+    expect(getSyncState().lastSyncedUserId).toBe(1);
     expect(api).not.toHaveBeenCalled();
   });
 });

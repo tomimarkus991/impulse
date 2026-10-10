@@ -2,7 +2,7 @@ import { GoogleSignin, isSuccessResponse } from "@react-native-google-signin/goo
 import { getSyncState, ServerSnapshotInfo, setSyncState } from "../sync/syncState";
 import { uploadSnapshot } from "../sync/upload";
 import { apiFetch } from "./client";
-import { clearSession, getLastUserId, saveSession, SessionUser } from "./session";
+import { clearSession, saveSession, SessionUser } from "./session";
 
 export type AuthResponse = {
   token: string;
@@ -14,12 +14,14 @@ export const isDevBuild = process.env.EXPO_PUBLIC_APP_VARIANT === "development";
 
 /**
  * Stores the session and decides whether uploads may start. A phone that hasn't uploaded
- * to this account before must not overwrite server data, so it's held until the user chooses.
+ * with this account before must not overwrite server data, so it's held until the user chooses.
  */
 export const completeSignIn = async ({ token, user, snapshot }: AuthResponse) => {
-  const sameAccountAsBefore = getLastUserId() === user.id && getSyncState().lastUploadedAt !== null;
+  const { lastSyncedUserId, held } = getSyncState();
+  const sameAccountAsBefore = lastSyncedUserId === user.id && !held;
 
   saveSession({ token, user });
+  setSyncState({ signedOutByServer: false });
 
   if (snapshot && !sameAccountAsBefore) {
     setSyncState({ held: true, serverSnapshot: snapshot });
