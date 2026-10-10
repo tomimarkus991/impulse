@@ -1,16 +1,86 @@
 {
   "planPath": "docs/superpowers/plans/2026-10-10-api-auth-and-snapshot-upload.md",
   "tasks": [
-    {"id": 1, "subject": "Task 1: Move the app into mobile/", "status": "pending"},
-    {"id": 2, "subject": "Task 2: In-memory kv-store for tests + session storage", "status": "pending", "blockedBy": [1]},
-    {"id": 3, "subject": "Task 3: Sync state with change listeners", "status": "pending", "blockedBy": [2]},
-    {"id": 4, "subject": "Task 4: API client", "status": "pending", "blockedBy": [2]},
-    {"id": 5, "subject": "Task 5: Local snapshot source (+ reuse in file backup)", "status": "pending", "blockedBy": [1]},
-    {"id": 6, "subject": "Task 6: Upload, restore helpers (TDD)", "status": "pending", "blockedBy": [3, 4, 5]},
-    {"id": 7, "subject": "Task 7: Sign-in (dev + Google) with the first-sign-in hold", "status": "pending", "blockedBy": [6]},
-    {"id": 8, "subject": "Task 8: Report data changes everywhere + upload on start", "status": "pending", "blockedBy": [6]},
-    {"id": 9, "subject": "Task 9: Account section in Settings", "status": "pending", "blockedBy": [7, 8]},
-    {"id": 10, "subject": "Task 10: Config and on-device check (needs the user's API)", "status": "pending", "blockedBy": [9]}
+    {
+      "id": 1,
+      "subject": "Task 1: Move the app into mobile/",
+      "status": "completed"
+    },
+    {
+      "id": 2,
+      "subject": "Task 2: In-memory kv-store for tests + session storage",
+      "status": "completed",
+      "blockedBy": [
+        1
+      ]
+    },
+    {
+      "id": 3,
+      "subject": "Task 3: Sync state with change listeners",
+      "status": "completed",
+      "blockedBy": [
+        2
+      ]
+    },
+    {
+      "id": 4,
+      "subject": "Task 4: API client",
+      "status": "completed",
+      "blockedBy": [
+        2
+      ]
+    },
+    {
+      "id": 5,
+      "subject": "Task 5: Local snapshot source (+ reuse in file backup)",
+      "status": "completed",
+      "blockedBy": [
+        1
+      ]
+    },
+    {
+      "id": 6,
+      "subject": "Task 6: Upload, restore helpers (TDD)",
+      "status": "completed",
+      "blockedBy": [
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "id": 7,
+      "subject": "Task 7: Sign-in (dev + Google) with the first-sign-in hold",
+      "status": "completed",
+      "blockedBy": [
+        6
+      ]
+    },
+    {
+      "id": 8,
+      "subject": "Task 8: Report data changes everywhere + upload on start",
+      "status": "completed",
+      "blockedBy": [
+        6
+      ]
+    },
+    {
+      "id": 9,
+      "subject": "Task 9: Account section in Settings",
+      "status": "completed",
+      "blockedBy": [
+        7,
+        8
+      ]
+    },
+    {
+      "id": 10,
+      "subject": "Task 10: Config and on-device check (needs the user's API)",
+      "status": "pending",
+      "blockedBy": [
+        9
+      ]
+    }
   ],
-  "lastUpdated": "2026-10-10T12:00:00Z"
+  "lastUpdated": "2026-10-10T14:30:00Z"
 }

@@ -111,10 +111,10 @@ One `@RestControllerAdvice`; all errors are `{ "error": string }`: `400` validat
 ### Modules
 
 - `src/api/client.ts`: `apiFetch(path, init)` adds `Authorization: Bearer <token>`, JSON headers, base URL; throws `ApiError { status }` on non-2xx and `NetworkError` on fetch failure.
-- `src/api/session.ts`: kv-store keys `sync.token`, `sync.user`, `sync.lastUserId`; `getSession()`, `saveSession()` (also sets `lastUserId`), `clearSession()` (removes token and user, keeps `lastUserId`).
+- `src/api/session.ts`: kv-store keys `sync.token`, `sync.user`; `getSession()`, `saveSession()`, `clearSession()`.
 - `src/api/auth.ts`: `signInWithGoogle()` (native sign-in → `POST /auth/google` → `saveSession`), `signInAsDevUser()` (same endpoint, any token; only shown when `EXPO_PUBLIC_APP_VARIANT === "development"`), `signOut()` (Google sign-out + `clearSession`).
 - `src/sync/upload.ts`:
-  - kv-store keys `sync.pendingUpload` (bool), `sync.lastUploadedAt` (ISO), `sync.uploadsHeld` (bool, see First sign-in).
+  - One kv-store key `sync.state` (JSON): `pending`, `held` (see First sign-in), `lastUploadedAt`, `lastSyncedUserId` (account this phone last uploaded to or restored from), `serverSnapshot` (what the server had at a held sign-in), `signedOutByServer` (set by a 401, cleared on sign-in).
   - `markDataChanged()`: set pending; if signed in, schedule `uploadSnapshot()` after a 5 s debounce.
   - `uploadSnapshot()`: serialized through a promise queue (same pattern as `rescheduleDailyDigest`). Skips when signed out, held, or not pending. Builds the snapshot with `createBackup` from all rows, `PUT /me/snapshot`. Success → clear pending, store `lastUploadedAt`. `401` → `clearSession()`, keep pending. Network/5xx → keep pending. No retry loop.
   - `fetchServerSnapshot()`: `GET /me/snapshot` → `parseBackup` → `Backup`. Does not touch local data.
@@ -139,7 +139,7 @@ App start and `AppState` "active" also call `uploadSnapshot()` (no-op unless sig
 
 ### First sign-in (protecting the server copy)
 
-A full-replace upload from a fresh phone would wipe the server. `clearSession()` keeps `sync.lastUserId` (the last signed-in user's id). On sign-in, if the returned user id equals `sync.lastUserId` and `sync.lastUploadedAt` is set, this is the same phone signing back in (e.g. expired token): uploads are not held and pending uploads go out. Otherwise, using the `snapshot` field of the auth response:
+A full-replace upload from a fresh phone would wipe the server. On sign-in, if the returned user id equals `lastSyncedUserId` and uploads aren't currently held, this is the same phone signing back in (e.g. expired token): uploads are not held and pending uploads go out. Otherwise, using the `snapshot` field of the auth response:
 - `snapshot == null` (server empty): uploads are not held; set pending and upload immediately.
 - `snapshot != null`: set `sync.uploadsHeld = true`. The Account section shows "This account has 1,509 workouts from 9 Oct" with two buttons: **Restore from server** (fetch → same "Replace all data?" alert → restore as `"server"`) and **Use this phone's data** (clear held, set pending, upload). Local edits while held keep the pending flag but never upload.
 
@@ -148,7 +148,7 @@ A full-replace upload from a fresh phone would wipe the server. `clearSession()`
 - Signed out: "Sign in with Google" (+ "Continue as dev user" in dev builds).
 - Signed in and held: the First sign-in choice above.
 - Signed in: email, "Last uploaded <relative time>" or "Not uploaded yet", a pending indicator, **Upload now**, **Restore from server** (same "Replace all data?" alert as file import, with counts), **Sign out**.
-- After a `401` the section shows "Signed out — sign in again".
+- After a `401` (`signedOutByServer`) the section shows "Signed out — sign in again to upload". Any authenticated `401` clears the session centrally in `apiFetch`.
 
 ### Tests (Jest)
 
