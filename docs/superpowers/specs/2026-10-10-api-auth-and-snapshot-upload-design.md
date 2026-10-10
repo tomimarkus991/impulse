@@ -1,7 +1,7 @@
 # API: Auth and Snapshot Upload — Design
 
 **Date:** 2026-10-10
-**Status:** Approved in brainstorming and spec review
+**Status:** Implemented and deployed to https://api.impulse.alber.ee (2026-10-10)
 
 ## Goal
 

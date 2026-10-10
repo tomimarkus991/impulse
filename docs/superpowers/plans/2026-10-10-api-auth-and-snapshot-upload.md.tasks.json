@@ -76,11 +76,11 @@
     {
       "id": 10,
       "subject": "Task 10: Config and on-device check (needs the user's API)",
-      "status": "pending",
+      "status": "completed",
       "blockedBy": [
         9
       ]
     }
   ],
-  "lastUpdated": "2026-10-10T14:30:00Z"
+  "lastUpdated": "2026-10-10T19:55:06+00:00"
 }
