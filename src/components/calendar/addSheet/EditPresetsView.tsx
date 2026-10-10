@@ -15,7 +15,7 @@ interface Props {
   onMove: (id: number, direction: -1 | 1) => void;
   onUnpin: (preset: SelectPreset) => void;
   onDelete: (preset: SelectPreset) => void;
-  onNew: () => Promise<number | undefined>;
+  onNew: () => void;
   onOpenAll: () => void;
 }
 
@@ -174,9 +174,16 @@ export const EditPresetsView = ({
               </>
             )}
             <View className="flex-1" />
-            <IconButton label={`Delete ${editing.title}`} onPress={() => onDelete(editing)}>
-              <Ionicons name="trash-outline" size={20} color="#ff6961" />
-            </IconButton>
+            <Pressable
+              accessibilityLabel={`Delete ${editing.title}`}
+              onPress={() => onDelete(editing)}
+              className="flex-row items-center gap-1.5 px-3.5 h-11 rounded-full bg-[#3a2321]"
+            >
+              <Ionicons name="trash-outline" size={18} color="#ff6961" />
+              <P className="text-base text-[#ff6961]" fontFamily="Rubik-Medium">
+                Delete
+              </P>
+            </Pressable>
           </View>
           <ColorSwatches
             selected={editing.color}
@@ -187,10 +194,9 @@ export const EditPresetsView = ({
 
       <View className="flex-row gap-2.5">
         <Pressable
-          onPress={async () => {
+          onPress={() => {
             commitTitle();
-            const id = await onNew();
-            if (id !== undefined) setEditingId(id);
+            onNew();
           }}
           className="flex-row items-center justify-center flex-1 gap-2 h-[52px] rounded-[14px] border-2 border-dashed border-[#48484a]"
         >

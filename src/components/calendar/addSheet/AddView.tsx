@@ -6,7 +6,7 @@ import { SelectPreset } from "../../../db/types";
 import { otherPresets, pinnedPresets } from "../../../utils/presets";
 import { P } from "../../P";
 import { ColorSwatches, inputTextStyle } from "./ColorSwatches";
-import { PresetTile } from "./PresetTile";
+import { PresetTile, textColorOn } from "./PresetTile";
 
 interface Props {
   presets: SelectPreset[];
@@ -211,7 +211,7 @@ export const AddView = ({
             className="text-[17px]"
             fontFamily="Rubik-SemiBold"
             numberOfLines={1}
-            style={{ color: addLabel ? "#FFFFFF" : "#8e8e93" }}
+            style={{ color: addLabel && addColor ? textColorOn(addColor) : "#8e8e93" }}
           >
             {addLabel ?? "Pick a training"}
           </P>

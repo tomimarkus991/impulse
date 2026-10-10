@@ -38,6 +38,7 @@ export const AddSheet = () => {
 
   const [view, setView] = useState<SheetView>("add");
   const [allReturnsTo, setAllReturnsTo] = useState<SheetView>("add");
+  const [allStartsCreating, setAllStartsCreating] = useState(false);
   const [selectedPresetId, setSelectedPresetId] = useState<number | null>(null);
   const [customTitle, setCustomTitle] = useState("");
   const [customColor, setCustomColor] = useState(DEFAULT_COLOR);
@@ -113,8 +114,9 @@ export const AddSheet = () => {
     rescheduleDailyDigest();
   };
 
-  const openAll = (from: SheetView) => {
+  const openAll = (from: SheetView, creating = false) => {
     setAllReturnsTo(from);
+    setAllStartsCreating(creating);
     setView("all");
   };
 
@@ -206,6 +208,7 @@ export const AddSheet = () => {
               <AllPresetsView
                 presets={presets}
                 date={date}
+                startCreating={allStartsCreating}
                 onBack={goBack}
                 onSelect={id => {
                   setSelectedPresetId(id);
@@ -213,8 +216,9 @@ export const AddSheet = () => {
                   setView("add");
                 }}
                 onTogglePin={togglePin}
-                onCreate={async title => {
-                  const preset = await createPreset(presets, { title, color: DEFAULT_COLOR });
+                onDelete={confirmDelete}
+                onCreate={async (title, color) => {
+                  const preset = await createPreset(presets, { title, color });
                   await refreshPresets();
                   setSelectedPresetId(preset.id);
                   setCustomTitle("");
@@ -241,14 +245,7 @@ export const AddSheet = () => {
                 }}
                 onUnpin={togglePin}
                 onDelete={confirmDelete}
-                onNew={async () => {
-                  const preset = await createPreset(presets, {
-                    title: "New preset",
-                    color: DEFAULT_COLOR,
-                  });
-                  await refreshPresets();
-                  return preset.id;
-                }}
+                onNew={() => openAll("edit", true)}
                 onOpenAll={() => openAll("edit")}
               />
             )}
