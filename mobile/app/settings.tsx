@@ -84,7 +84,8 @@ export default function SettingsScreen() {
         onDataChanged();
       } else {
         rescheduleDailyDigest();
-        await markRestoredFromServer();
+        // Not awaited: it queues behind any in-flight upload, which can be slow on a bad network
+        markRestoredFromServer().catch(error => console.warn("Failed to mark restore", error));
       }
       Alert.alert(
         "Backup imported",

@@ -53,7 +53,8 @@ export const apiFetch = async <T = unknown>(path: string, { method = "GET", body
     data = null;
   }
 
-  if (response.status === 401 && token) {
+  // Only if it's still the current session; a late 401 must not sign out a newer sign-in
+  if (response.status === 401 && token && getSession()?.token === token) {
     // The token expired or was revoked: sign out so the UI asks the user to sign in again
     clearSession();
     setSyncState({ signedOutByServer: true });

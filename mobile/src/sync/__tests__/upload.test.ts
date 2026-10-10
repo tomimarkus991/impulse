@@ -88,7 +88,7 @@ describe("uploadSnapshot", () => {
     expect(getSyncState().lastSyncedUserId).toBeNull();
   });
 
-  it("never rejects, even when building the snapshot throws", async () => {
+  it("never rejects, even when the request throws synchronously", async () => {
     signIn();
     setSyncState({ pending: true });
     api.mockImplementation(() => {

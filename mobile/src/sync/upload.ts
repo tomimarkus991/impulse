@@ -29,11 +29,11 @@ export const cancelScheduledUpload = () => {
 export type UploadResult = "ok" | "skipped" | "unauthorized" | "failed";
 
 const upload = async (): Promise<UploadResult> => {
-  const { pending, held } = getSyncState();
-  const session = getSession();
-  if (!session || !pending || held) return "skipped";
-
   try {
+    const { pending, held } = getSyncState();
+    const session = getSession();
+    if (!session || !pending || held) return "skipped";
+
     await apiFetch("/me/snapshot", { method: "PUT", body: await buildLocalSnapshot() });
     setSyncState({
       pending: false,

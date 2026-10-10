@@ -70,6 +70,17 @@ describe("apiFetch", () => {
     expect(getSyncState().signedOutByServer).toBe(false);
   });
 
+  it("ignores a late 401 for a token that has since been replaced", async () => {
+    saveSession({ token: "old", user: { id: 1, email: "a@b.c", name: null } });
+    fetchMock.mockImplementation(async () => {
+      saveSession({ token: "new", user: { id: 1, email: "a@b.c", name: null } });
+      return new Response('{"error":"Expired"}', { status: 401 });
+    });
+
+    await expect(apiFetch("/me/snapshot")).rejects.toBeInstanceOf(ApiError);
+    expect(getSession()?.token).toBe("new");
+  });
+
   it("keeps the status when the error body isn't JSON", async () => {
     fetchMock.mockResolvedValue(new Response("<html>Bad Gateway</html>", { status: 502 }));
 
