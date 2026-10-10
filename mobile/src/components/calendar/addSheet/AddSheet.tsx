@@ -18,7 +18,7 @@ import { SelectEvent, SelectPreset } from "../../../db/types";
 import { useEvent } from "../../../hooks/EventContext";
 import { useModal } from "../../../hooks/ModalContext";
 import { useSelect } from "../../../hooks/SelectContext";
-import { rescheduleDailyDigest } from "../../../notifications/dailyDigest";
+import { onDataChanged } from "../../../data/onDataChanged";
 import { MAX_PINNED } from "../../../utils/presets";
 import { AddedToast } from "./AddedToast";
 import { AddView } from "./AddView";
@@ -92,7 +92,7 @@ export const AddSheet = () => {
       next.set(dayKey, [...(prev.get(dayKey) ?? []), event]);
       return next;
     });
-    rescheduleDailyDigest();
+    onDataChanged();
 
     close();
     setAddedEvent(event);
@@ -111,7 +111,7 @@ export const AddSheet = () => {
       );
       return next;
     });
-    rescheduleDailyDigest();
+    onDataChanged();
   };
 
   const openAll = (from: SheetView, creating = false) => {

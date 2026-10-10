@@ -16,6 +16,7 @@ import { presetsTable } from "../src/db/schema";
 import { EventProvider } from "../src/hooks/EventContext";
 import { SelectProvider } from "../src/hooks/SelectContext";
 import { rescheduleDailyDigest, setupNotifications } from "../src/notifications/dailyDigest";
+import { uploadSnapshot } from "../src/sync/upload";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -97,10 +98,14 @@ function RootLayoutNav() {
     (async () => {
       await setupNotifications();
       rescheduleDailyDigest();
+      uploadSnapshot();
     })();
 
     const subscription = AppState.addEventListener("change", state => {
-      if (state === "active") rescheduleDailyDigest();
+      if (state === "active") {
+        rescheduleDailyDigest();
+        uploadSnapshot();
+      }
     });
 
     return () => subscription.remove();

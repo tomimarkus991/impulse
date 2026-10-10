@@ -10,7 +10,7 @@ import { useModal } from "../../../hooks/ModalContext";
 import { P } from "../../P";
 import { ColorPicker } from "../ColorPicker";
 import { useEvent } from "../../../hooks/EventContext";
-import { rescheduleDailyDigest } from "../../../notifications/dailyDigest";
+import { onDataChanged } from "../../../data/onDataChanged";
 
 interface Props {
   selectedEvent: SelectEvent | null;
@@ -85,7 +85,7 @@ export const EditEventModal = ({ selectedEvent }: Props) => {
                 );
                 return next;
               });
-              rescheduleDailyDigest();
+              onDataChanged();
 
               closeModal();
             }}
@@ -98,6 +98,7 @@ export const EditEventModal = ({ selectedEvent }: Props) => {
 
               await db.update(eventsTable).set({ locked }).where(eq(eventsTable.id, id));
               updateEvent({ locked });
+              onDataChanged();
             }}
           >
             {event.locked ? (
@@ -116,6 +117,7 @@ export const EditEventModal = ({ selectedEvent }: Props) => {
             onPick={async color => {
               await db.update(eventsTable).set({ color }).where(eq(eventsTable.id, id));
               updateEvent({ color });
+              onDataChanged();
             }}
           />
         </View>

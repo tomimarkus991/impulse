@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "../../app/_layout";
 import { canPin, movePinned, nextPinnedPosition, nextPresetId } from "../utils/presets";
+import { markDataChanged } from "../sync/upload";
 import { presetsTable } from "./schema";
 import { SelectPreset } from "./types";
 
@@ -24,13 +25,19 @@ export const createPreset = async (
     })
     .returning();
 
+  markDataChanged();
   return preset;
 };
 
-export const updatePreset = (id: number, changes: { title?: string; color?: string }) =>
-  db.update(presetsTable).set(changes).where(eq(presetsTable.id, id));
+export const updatePreset = async (id: number, changes: { title?: string; color?: string }) => {
+  await db.update(presetsTable).set(changes).where(eq(presetsTable.id, id));
+  markDataChanged();
+};
 
-export const deletePreset = (id: number) => db.delete(presetsTable).where(eq(presetsTable.id, id));
+export const deletePreset = async (id: number) => {
+  await db.delete(presetsTable).where(eq(presetsTable.id, id));
+  markDataChanged();
+};
 
 /** Pins or unpins a preset. Returns false when pinning is refused because the grid is full. */
 export const setPresetPinned = async (presets: SelectPreset[], id: number, pinned: boolean) => {
@@ -41,6 +48,7 @@ export const setPresetPinned = async (presets: SelectPreset[], id: number, pinne
     .set({ pinned, position: pinned ? nextPinnedPosition(presets) : 0 })
     .where(eq(presetsTable.id, id));
 
+  markDataChanged();
   return true;
 };
 
@@ -48,4 +56,6 @@ export const movePinnedPreset = async (presets: SelectPreset[], id: number, dire
   for (const { id: presetId, position } of movePinned(presets, id, direction)) {
     await db.update(presetsTable).set({ position }).where(eq(presetsTable.id, presetId));
   }
+
+  markDataChanged();
 };
