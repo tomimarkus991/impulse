@@ -70,6 +70,15 @@ describe("apiFetch", () => {
     expect(getSyncState().signedOutByServer).toBe(false);
   });
 
+  it("keeps the status when the error body isn't JSON", async () => {
+    fetchMock.mockResolvedValue(new Response("<html>Bad Gateway</html>", { status: 502 }));
+
+    const error = (await apiFetch("/me/snapshot").catch(e => e)) as ApiError;
+    expect(error).toBeInstanceOf(ApiError);
+    expect(error.status).toBe(502);
+    expect(error.name).toBe("ApiError");
+  });
+
   it("throws NetworkError when fetch itself fails", async () => {
     fetchMock.mockRejectedValue(new TypeError("Network request failed"));
 

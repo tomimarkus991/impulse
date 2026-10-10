@@ -84,7 +84,7 @@ export default function SettingsScreen() {
         onDataChanged();
       } else {
         rescheduleDailyDigest();
-        markRestoredFromServer();
+        await markRestoredFromServer();
       }
       Alert.alert(
         "Backup imported",

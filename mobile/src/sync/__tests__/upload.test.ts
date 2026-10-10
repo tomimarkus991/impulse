@@ -20,6 +20,7 @@ import { getSession, saveSession } from "../../api/session";
 import { Storage } from "../../test/kvStoreMock";
 import { getSyncState, resetSyncStateCache, setSyncState } from "../syncState";
 import {
+  cancelScheduledUpload,
   markDataChanged,
   markRestoredFromServer,
   UPLOAD_DEBOUNCE_MS,
@@ -38,7 +39,7 @@ describe("uploadSnapshot", () => {
 
   it("does nothing when signed out and stays pending", async () => {
     setSyncState({ pending: true });
-    await uploadSnapshot();
+    expect(await uploadSnapshot()).toBe("skipped");
 
     expect(api).not.toHaveBeenCalled();
     expect(getSyncState().pending).toBe(true);
@@ -46,7 +47,7 @@ describe("uploadSnapshot", () => {
 
   it("does nothing when nothing is pending", async () => {
     signIn();
-    await uploadSnapshot();
+    expect(await uploadSnapshot()).toBe("skipped");
 
     expect(api).not.toHaveBeenCalled();
   });
@@ -54,7 +55,7 @@ describe("uploadSnapshot", () => {
   it("does nothing while held", async () => {
     signIn();
     setSyncState({ pending: true, held: true });
-    await uploadSnapshot();
+    expect(await uploadSnapshot()).toBe("skipped");
 
     expect(api).not.toHaveBeenCalled();
     expect(getSyncState().pending).toBe(true);
@@ -65,7 +66,7 @@ describe("uploadSnapshot", () => {
     setSyncState({ pending: true });
     api.mockResolvedValue({ events: 0, presets: 0, receivedAt: "x" });
 
-    await uploadSnapshot();
+    expect(await uploadSnapshot()).toBe("ok");
 
     expect(api).toHaveBeenCalledWith("/me/snapshot", {
       method: "PUT",
@@ -81,10 +82,20 @@ describe("uploadSnapshot", () => {
     setSyncState({ pending: true });
     api.mockRejectedValue(new ApiError(401, "Expired"));
 
-    await uploadSnapshot();
+    expect(await uploadSnapshot()).toBe("unauthorized");
 
     expect(getSyncState().pending).toBe(true);
     expect(getSyncState().lastSyncedUserId).toBeNull();
+  });
+
+  it("never rejects, even when building the snapshot throws", async () => {
+    signIn();
+    setSyncState({ pending: true });
+    api.mockImplementation(() => {
+      throw new Error("boom");
+    });
+
+    expect(await uploadSnapshot()).toBe("failed");
   });
 
   it("keeps pending on network errors", async () => {
@@ -92,7 +103,7 @@ describe("uploadSnapshot", () => {
     setSyncState({ pending: true });
     api.mockRejectedValue(new NetworkError("offline"));
 
-    await uploadSnapshot();
+    expect(await uploadSnapshot()).toBe("failed");
 
     expect(getSession()).not.toBeNull();
     expect(getSyncState().pending).toBe(true);
@@ -126,6 +137,15 @@ describe("markDataChanged", () => {
 
     expect(api).toHaveBeenCalledTimes(1);
   });
+
+  it("cancelScheduledUpload drops the pending debounce", async () => {
+    signIn();
+    markDataChanged();
+    cancelScheduledUpload();
+    await jest.advanceTimersByTimeAsync(UPLOAD_DEBOUNCE_MS);
+
+    expect(api).not.toHaveBeenCalled();
+  });
 });
 
 describe("markRestoredFromServer", () => {
@@ -140,12 +160,31 @@ describe("markRestoredFromServer", () => {
     signIn();
     setSyncState({ pending: true, held: true });
 
-    markRestoredFromServer();
+    await markRestoredFromServer();
     await uploadSnapshot();
 
     expect(getSyncState()).toMatchObject({ pending: false, held: false });
     expect(getSyncState().lastUploadedAt).not.toBeNull();
     expect(getSyncState().lastSyncedUserId).toBe(1);
     expect(api).not.toHaveBeenCalled();
+  });
+
+  it("lands after an upload that is already in flight", async () => {
+    signIn();
+    setSyncState({ pending: true });
+    let finishPut: (value: unknown) => void = () => {};
+    api.mockReturnValue(new Promise(resolve => (finishPut = resolve)));
+    const order: string[] = [];
+
+    const inFlight = uploadSnapshot().then(() => order.push("upload"));
+    const restored = markRestoredFromServer().then(() => order.push("restored"));
+    await new Promise(resolve => setTimeout(resolve, 0));
+    expect(order).toEqual([]);
+
+    finishPut({});
+    await Promise.all([inFlight, restored]);
+
+    expect(order).toEqual(["upload", "restored"]);
+    expect(getSyncState()).toMatchObject({ pending: false, serverSnapshot: null });
   });
 });

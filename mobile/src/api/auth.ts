@@ -57,5 +57,6 @@ export const signInAsDevUser = () => exchange("dev");
 
 export const signOut = async () => {
   clearSession();
-  if (!isDevBuild) await GoogleSignin.signOut().catch(() => {});
+  // Dev builds can still have signed in with Google, so always sign out there too
+  await GoogleSignin.signOut().catch(() => {});
 };

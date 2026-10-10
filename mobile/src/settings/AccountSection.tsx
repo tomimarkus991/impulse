@@ -1,11 +1,16 @@
 import { formatDistanceToNow, format } from "date-fns";
 import React, { useState } from "react";
 import { Alert } from "react-native";
-import { getApiUrl } from "../api/client";
+import { getApiUrl, NetworkError } from "../api/client";
 import { isDevBuild, signInAsDevUser, signInWithGoogle, signOut } from "../api/auth";
 import { Backup } from "../backup/backup";
 import { setSyncState } from "../sync/syncState";
-import { fetchServerSnapshot, uploadSnapshot } from "../sync/upload";
+import {
+  cancelScheduledUpload,
+  fetchServerSnapshot,
+  UploadResult,
+  uploadSnapshot,
+} from "../sync/upload";
 import { useSyncStatus } from "../sync/useSyncStatus";
 import { Divider, Row, Section } from "./SettingsRows";
 
@@ -26,14 +31,36 @@ export const AccountSection = ({ onRestore }: Props) => {
     try {
       await action();
     } catch (error) {
-      Alert.alert("Something went wrong", String(error));
+      const message =
+        error instanceof NetworkError
+          ? "Couldn't reach the server."
+          : error instanceof Error
+            ? error.message
+            : String(error);
+      Alert.alert("Something went wrong", message);
     } finally {
       setBusy(null);
     }
   };
 
   const restore = () =>
-    run("restore", async () => onRestore(await fetchServerSnapshot(), "server"));
+    run("restore", async () => {
+      // A debounced upload firing mid-restore would overwrite the copy we're about to fetch
+      cancelScheduledUpload();
+      onRestore(await fetchServerSnapshot(), "server");
+    });
+
+  /** Manual uploads tell the user when they didn't go through; background ones stay quiet. */
+  const reportUpload = (result: UploadResult) => {
+    if (result === "failed") {
+      Alert.alert(
+        "Upload failed",
+        "Couldn't reach the server. Your changes are kept and will upload later."
+      );
+    } else if (result === "unauthorized") {
+      Alert.alert("Signed out", "Sign in again to upload.");
+    }
+  };
 
   if (!session) {
     return (
@@ -89,7 +116,7 @@ export const AccountSection = ({ onRestore }: Props) => {
           onPress={() =>
             run("upload", async () => {
               setSyncState({ held: false, pending: true, serverSnapshot: null });
-              await uploadSnapshot();
+              reportUpload(await uploadSnapshot());
             })
           }
         />
@@ -116,7 +143,7 @@ export const AccountSection = ({ onRestore }: Props) => {
         onPress={() =>
           run("upload", async () => {
             setSyncState({ pending: true });
-            await uploadSnapshot();
+            reportUpload(await uploadSnapshot());
           })
         }
       />
