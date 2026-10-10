@@ -3,7 +3,8 @@ import * as DocumentPicker from "expo-document-picker";
 import { Directory, File } from "expo-file-system";
 import { db } from "../../app/_layout";
 import { eventsTable, presetsTable } from "../db/schema";
-import { Backup, createBackup, parseBackup } from "./backup";
+import { buildLocalSnapshot } from "../sync/localSnapshot";
+import { Backup, parseBackup } from "./backup";
 
 // Keeps each insert well under SQLite's bound-parameter limit
 const INSERT_CHUNK = 500;
@@ -17,16 +18,13 @@ const chunks = <T>(items: T[]) => {
 
 const buildBackupFile = async () => {
   const now = new Date();
-  const [events, presets] = await Promise.all([
-    db.select().from(eventsTable),
-    db.select().from(presetsTable),
-  ]);
+  const backup = await buildLocalSnapshot(now);
 
   return {
     name: `impulse-backup-${format(now, "yyyy-MM-dd-HHmm")}.json`,
-    contents: JSON.stringify(createBackup(events, presets, now)),
-    events: events.length,
-    presets: presets.length,
+    contents: JSON.stringify(backup),
+    events: backup.events.length,
+    presets: backup.presets.length,
   };
 };
 
