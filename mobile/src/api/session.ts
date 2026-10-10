@@ -1,5 +1,7 @@
 import { Storage } from "expo-sqlite/kv-store";
 
+import { notifySyncListeners } from "../sync/syncState";
+
 export type SessionUser = { id: number; email: string; name: string | null };
 export type Session = { token: string; user: SessionUser };
 
@@ -23,12 +25,14 @@ export const saveSession = (session: Session) => {
   Storage.setItemSync(TOKEN, session.token);
   Storage.setItemSync(USER, JSON.stringify(session.user));
   Storage.setItemSync(LAST_USER_ID, String(session.user.id));
+  notifySyncListeners();
 };
 
 /** Signs out locally. Keeps the last user id so the same account signing back in isn't held. */
 export const clearSession = () => {
   Storage.removeItemSync(TOKEN);
   Storage.removeItemSync(USER);
+  notifySyncListeners();
 };
 
 export const getLastUserId = (): number | null => {
