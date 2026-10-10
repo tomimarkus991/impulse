@@ -195,6 +195,7 @@ export const AddSheet = () => {
                 locked={locked}
                 onToggleLocked={() => setLocked(value => !value)}
                 addLabel={target ? `Add ${target.title} to ${format(date, "EEE d MMM")}` : null}
+                addColor={target?.color ? target.color : null}
                 onAdd={addEvent}
                 onOpenAll={() => openAll("add")}
                 onOpenEdit={() => setView("edit")}

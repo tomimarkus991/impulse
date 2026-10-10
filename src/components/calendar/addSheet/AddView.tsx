@@ -21,6 +21,7 @@ interface Props {
   locked: boolean;
   onToggleLocked: () => void;
   addLabel: string | null;
+  addColor: string | null;
   onAdd: () => void;
   onOpenAll: () => void;
   onOpenEdit: () => void;
@@ -56,6 +57,7 @@ export const AddView = ({
   locked,
   onToggleLocked,
   addLabel,
+  addColor,
   onAdd,
   onOpenAll,
   onOpenEdit,
@@ -96,7 +98,7 @@ export const AddView = ({
           </P>
           <Pressable
             onPress={onOpenEdit}
-            className="items-center justify-center h-11 px-4 rounded-full bg-primary"
+            className="items-center justify-center px-4 rounded-full h-11 bg-primary"
           >
             <P className="text-base text-white" fontFamily="Rubik-SemiBold">
               Edit
@@ -202,8 +204,8 @@ export const AddView = ({
           accessibilityState={{ disabled: !addLabel }}
           disabled={!addLabel}
           onPress={onAdd}
-          className="items-center justify-center flex-1 h-14 px-4 rounded-2xl"
-          style={{ backgroundColor: addLabel ? "#0A84FF" : "#2c2c2b" }}
+          className="items-center justify-center flex-1 px-4 h-14 rounded-2xl"
+          style={{ backgroundColor: addLabel && addColor ? addColor : "#2c2c2b" }}
         >
           <P
             className="text-[17px]"
