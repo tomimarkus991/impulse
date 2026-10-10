@@ -20,6 +20,8 @@ spring:
 server:
   servlet:
     context-path: /api/v1
+  # Behind Traefik in production: trust its X-Forwarded-* headers for the real scheme and host
+  forward-headers-strategy: framework
   # Never expose stack traces or raw exception messages in HTTP error responses
   error:
     include-stacktrace: never
