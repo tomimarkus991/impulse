@@ -17,7 +17,7 @@ Get the user's workout data onto a server they own, so a future AI coach (separa
 | Dev auth | `dev` profile skips Google and signs in as `dev@impulse.app` (gatherr pattern) | No Google round-trip while developing. |
 | Monetization | Out of scope. Paywall later goes on the coach, not on upload. | No users yet; coach has real per-message cost. |
 | Repo layout | `impulse/mobile` (Expo app) + `impulse/api` (Spring Boot) | User preference. `mobile` avoids an `app/app` path clash with Expo Router. |
-| API stack | Spring Boot 4.1.1, Java 25, Gradle (Kotlin DSL), Postgres, Flyway | Chosen on start.spring.io. |
+| API stack | Spring Boot 4.1.1, Java 25, Maven, Postgres, Flyway | Chosen on start.spring.io. |
 
 ## 1. Repository restructure
 
@@ -29,7 +29,7 @@ Get the user's workout data onto a server they own, so a future AI coach (separa
 
 ## 2. API (`impulse/api`)
 
-The user writes the API; this section is the contract and shape it must satisfy.
+This section is the contract and shape the API satisfies. It follows the user's gatherr backend (package layout, Lombok, dev bypass, `DataSeeder`) and is served under `/api/v1`.
 
 ### Dependencies
 
